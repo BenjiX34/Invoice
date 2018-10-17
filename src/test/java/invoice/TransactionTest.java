@@ -100,7 +100,17 @@ public class TransactionTest {
             int[] productIDs = new int[]{4}; //Produit inexistant
             int[] quantities = new int[]{3};
             
-            myDAO.createInvoice(myCustomer, productIDs, quantities);
+            //On vérifie que le client n'a aucune facture
+            assertEquals(myDAO.numberOfInvoicesForCustomer(myCustomer.getCustomerId()), 0);
+            
+            try{
+                myDAO.createInvoice(myCustomer, productIDs, quantities);
+            }catch(SQLException ex){
+                //On vérifie que s'il y a une erreur, le client n'a toujours aucune facture
+                assertEquals(myDAO.numberOfInvoicesForCustomer(myCustomer.getCustomerId()), 0);
+                throw ex;
+            }
+         
             fail();
             
         }

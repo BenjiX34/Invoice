@@ -80,31 +80,40 @@ public class DAO {
 		String sql = "INSERT INTO Invoice (CustomerID) VALUES (?)";
 		try (Connection connection = myDataSource.getConnection();
 			PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                        stmt.setInt(1, customer.getCustomerId());
-			stmt.executeUpdate();
                         
-                        
-                        ResultSet clefs = stmt.getGeneratedKeys();
-                        int c = 0;
-                        if(clefs.next()){
-                            c = clefs.getInt(1);
-                            System.out.println(c);
-                        }
-                       
-                        
-                        String sql2 = "INSERT INTO Item SELECT ?, ?, ?, ?, Price FROM Product WHERE ID=?";
-                        
-                        try(PreparedStatement stmt2 = connection.prepareStatement(sql2)){
-                            for(int i=0; i<productIDs.length; i++){
-                                stmt2.setInt(1, c);
-                                stmt2.setInt(2, i+1);
-                                stmt2.setInt(3, productIDs[i]);
-                                stmt2.setInt(4, quantities[i]);
-                                stmt2.setInt(5, productIDs[i]);
-                                
-                                stmt2.executeUpdate();
+                        connection.setAutoCommit(false);
+                        try{
+                            stmt.setInt(1, customer.getCustomerId());
+			    stmt.executeUpdate();
+
+                            ResultSet clefs = stmt.getGeneratedKeys();
+                            int c = 0;
+                            if (clefs.next()) {
+                                c = clefs.getInt(1);
+                                System.out.println(c);
                             }
+
+                            String sql2 = "INSERT INTO Item VALUES (?, ?, ?, ?, (SELECT Price FROM Product WHERE ID=?))";
+
+                            try (PreparedStatement stmt2 = connection.prepareStatement(sql2)) {
+                                for (int i = 0; i < productIDs.length; i++) {
+                                    stmt2.setInt(1, c);
+                                    stmt2.setInt(2, i + 1);
+                                    stmt2.setInt(3, productIDs[i]);
+                                    stmt2.setInt(4, quantities[i]);
+                                    stmt2.setInt(5, productIDs[i]);
+
+                                    stmt2.executeUpdate();
+                                }
+                            }
+                        }catch(Exception ex){
+                            connection.rollback();
+                            throw ex;
+                        }finally{
+                            connection.setAutoCommit(true);
                         }
+                    
+                        
 			
 		}
 	}

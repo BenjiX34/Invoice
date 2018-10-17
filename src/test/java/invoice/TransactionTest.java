@@ -95,7 +95,26 @@ public class TransactionTest {
 	}
 	
 
-	
+	@Test (expected=SQLException.class)
+        public void unknownProduct() throws Exception{
+            int[] productIDs = new int[]{4}; //Produit inexistant
+            int[] quantities = new int[]{3};
+            
+            myDAO.createInvoice(myCustomer, productIDs, quantities);
+            fail();
+            
+        }
+        
+        
+        @Test (expected=SQLException.class)
+        public void negativeQuantity() throws Exception{
+            int[] productIDs = new int[]{2}; //Produit existant
+            int[] quantities = new int[]{-1}; //Quantité négative
+            
+            myDAO.createInvoice(myCustomer, productIDs, quantities); 
+            fail();
+        }
+        
 	public static DataSource getDataSource() throws SQLException {
 		org.hsqldb.jdbc.JDBCDataSource ds = new org.hsqldb.jdbc.JDBCDataSource();
 		ds.setDatabase("jdbc:hsqldb:mem:testcase;shutdown=true");

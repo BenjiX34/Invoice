@@ -97,8 +97,8 @@ public class TransactionTest {
 
 	@Test (expected=SQLException.class)
         public void unknownProduct() throws Exception{
-            int[] productIDs = new int[]{4}; //Produit inexistant
-            int[] quantities = new int[]{3};
+            int[] productIDs = new int[]{0,4}; //Produit inexistant
+            int[] quantities = new int[]{2,3};
             
             //On vérifie que le client n'a aucune facture
             assertEquals(myDAO.numberOfInvoicesForCustomer(myCustomer.getCustomerId()), 0);
@@ -118,8 +118,8 @@ public class TransactionTest {
         
         @Test (expected=SQLException.class)
         public void negativeQuantity() throws Exception{
-            int[] productIDs = new int[]{2}; //Produit existant
-            int[] quantities = new int[]{-1}; //Quantité négative
+            int[] productIDs = new int[]{1,2};
+            int[] quantities = new int[]{3,-1}; //Quantité négative
             
             myDAO.createInvoice(myCustomer, productIDs, quantities); 
             fail();
